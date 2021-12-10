@@ -213,7 +213,7 @@ const speedSection = (ctrl: ExplorerConfigCtrl, speeds: Speed[]) =>
 const modeSection = (ctrl: ExplorerConfigCtrl) =>
   h('section.mode', [h('div.choices', allModes.map(radioButton(ctrl, ctrl.data.mode)))]);
 
-const monthInput = (prop: StoredProp<Month>, min: () => Month, redraw: Redraw) => {
+const monthInput = (prop: StoredProp<Month>, min: () => Month, monthPlaceholder: Month, redraw: Redraw) => {
   const validateRange = (input: HTMLInputElement) =>
     input.setCustomValidity(!input.value || min() <= input.value ? '' : 'Invalid date range');
   return h('input', {
@@ -222,7 +222,8 @@ const monthInput = (prop: StoredProp<Month>, min: () => Month, redraw: Redraw) =
       pattern: '^20[12][0-9]-(0[1-9]|1[012])$',
       min: '2010-01',
       max: new Date().toISOString().slice(0, 7),
-      value: prop() || '',
+      value: prop() ? prop() : monthPlaceholder,
+      placholder: monthPlaceholder,
     },
     hook: {
       insert: vnode => {
@@ -245,8 +246,11 @@ const monthInput = (prop: StoredProp<Month>, min: () => Month, redraw: Redraw) =
 
 const monthSection = (ctrl: ExplorerConfigCtrl) =>
   h('section.month', [
-    h('label', ['Since', monthInput(ctrl.data.since, () => '', ctrl.root.redraw)]),
-    h('label', ['Until', monthInput(ctrl.data.until, ctrl.data.since, ctrl.root.redraw)]),
+    h('label', ['Since', monthInput(ctrl.data.since, () => '', '2010-10', ctrl.root.redraw)]),
+    h('label', [
+      'Until',
+      monthInput(ctrl.data.until, ctrl.data.since, new Date().toISOString().slice(0, 7), ctrl.root.redraw),
+    ]),
   ]);
 
 const playerModal = (ctrl: ExplorerConfigCtrl) => {
